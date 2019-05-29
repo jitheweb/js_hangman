@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>JavaScript Hangman game</title>
+    <link rel = "stylesheet" type = text/css href = jsstyle.css />
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">
+        <h1>Hangman</h1>
+      </div>
+    </header>
+    <div class="wrapper">
+      <p>Guess the words</p>
+      <div class="container">
+        <div id="displayedWord"></div>
+        <div id="numberGuessed"></div>
+        <div id="winCounts"></div>
+        <div id="guessedLetters"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    var words = [
+      "soccer",
+      "ice hockey",
+      "baseball",
+      "basketball",
+      "football",
+      "softball",
+      "vollyball"
+    ];
+
+    var randNum = 0;
+    var choosenWord = "";
+    var displayedWord = "";
+    var guessedLetters = [];
+    var numberGuessed = 0;
+    var winCounts = 0;
+
+    var generateDisplayedWord = () => {
+      console.log(choosenWord.length);
+      for (var i = 0; i < choosenWord.length; i++) {
+        if (choosenWord[i] == " ") {
+          displayedWord += " ";
+        } else {
+          displayedWord += "_";
+        }
+      }
+      return displayedWord;
+    };
+
+    var resetGame = () => {
+      randNum = Math.floor(Math.random() * words.length);
+      console.log(randNum);
+      choosenWord = words[randNum];
+      displayedWord = "";
+      guessedLetters = [];
+      numberGuessed = 8;
+
+      console.log(choosenWord);
+      console.log(generateDisplayedWord());
+
+      document.getElementById("guessedLetters").innerHTML =
+        "Letters already guessed: " +
+        guessedLetters
+          .toString()
+          .split("")
+          .join(" ");
+      document.getElementById("numberGuessed").innerHTML =
+        "attempts left: " + numberGuessed;
+      document.getElementById("displayedWord").innerText = displayedWord
+        .toString()
+        .split("")
+        .join(" ");
+    };
+
+    resetGame();
+    document.getElementById("winCounts").innerHTML = "wins: " + winCounts;
+
+    console.log(displayedWord.toString());
+    document.getElementById("displayedWord").innerText = displayedWord
+      .toString()
+      .split("")
+      .join(" ");
+
+    document.addEventListener("keypress", event => {
+      // got a key press, translate to string
+      var keyWord = String.fromCharCode(event.keyCode);
+      // find the first index of key in choosenWord
+      var idx = choosenWord.indexOf(keyWord);
+      var indices = [];
+
+      while (idx != -1) {
+        // at least one index was found. find the next one.
+        indices.push(idx);
+        idx = choosenWord.indexOf(keyWord, idx + 1);
+      }
+      // log all of the indices
+      console.log(indices);
+
+      if (indices.length == 0) {
+        // indices is empty, key was not found in choosenWord.
+        // reduce number of guesses and add key to guessed letters
+
+        if (guessedLetters.includes(keyWord) == false) {
+          guessedLetters.push(keyWord);
+          document.getElementById("guessedLetters").innerHTML =
+            "Letters already guessed: " +
+            guessedLetters
+              .toString()
+              .split("")
+              .join(" ");
+          numberGuessed--;
+          document.getElementById("numberGuessed").innerHTML =
+            "attempts left: " + numberGuessed;
+        }
+      } else {
+        // found the key at least once in choosenWord
+        // replace the displayedWord with the key in the correct position
+        var index = indices.pop();
+        while (index != undefined) {
+          displayedWord =
+            displayedWord.substring(0, index) +
+            keyWord +
+            displayedWord.substring(index + 1);
+          console.log(displayedWord);
+          index = indices.pop();
+        }
+
+        console.log(displayedWord + " " + index + " " + keyWord);
+        document.getElementById("displayedWord").innerText = displayedWord
+          .toString()
+          .split("")
+          .join(" ");
+      }
+
+      // Check for win or lose condition
+      if (displayedWord.includes("_") == false) {
+        // you won
+        alert("you won");
+        resetGame();
+        winCounts++;
+        document.getElementById("winCounts").innerHTML = "wins: " + winCounts;
+      } else if (numberGuessed == 0) {
+        alert("game end");
+        resetGame();
+      }
+    });
+  </script>
+</html>
